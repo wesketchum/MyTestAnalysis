@@ -75,7 +75,7 @@ test::MyTestAnalyzer::~MyTestAnalyzer()
 {                                                                                                                                 
   //store output tree                                                                                                         
   myTFile->cd();                                                                                                               
-  myTTree->Write("pandoratree");                                                                                            
+  myTTree->Write("tree");                                                                                            
   myTFile->Close();                                                                                                        
   std::cout << "End!" << std::endl;                                                                                     
 }
