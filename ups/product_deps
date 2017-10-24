@@ -9,7 +9,7 @@ product         version
 larsim		v06_31_04
 gcc		v6_3_0
 
-cetbuildtools	v4_19_04	-	only_for_build
+only_for_build  cetbuildtools   v5_14_00
 end_product_list
 
   
