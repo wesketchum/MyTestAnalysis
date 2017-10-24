@@ -57,8 +57,8 @@ private:
   typedef std::map< art::Ptr<recob::Cluster>, HitVector> ClustersToHits;
 
   // Declare member data here.
-  TFile * myTFile;
-  TTree * myTTree;
+  TFile * m_file;
+  TTree * m_tree;
 
   unsigned int nEvent;
   unsigned int nPFParticles;
@@ -82,17 +82,17 @@ test::MyTestAnalyzer::MyTestAnalyzer(fhicl::ParameterSet const & p) :
 
   //create output tree                                                                                                             
   art::ServiceHandle<art::TFileService> tfs;                                                                                       
-  myTFile = new TFile("MyTestAnalyzer.root", "RECREATE");                                                                 
-  myTTree = tfs->make<TTree>("tree","Tree");
+  m_file = new TFile("MyTestAnalyzer.root", "RECREATE");                                                                 
+  m_tree = tfs->make<TTree>("tree","Tree");
 
   //add branches
-  myTTree->Branch("nEvent",&nEvent,"nEvent/I");
-  myTTree->Branch("nPFParticles",&nPFParticles,"nPFParticles/I");
-  myTTree->Branch("nTracks", &nTracks, "nTracks/I");
-  myTTree->Branch("nShowers", &nShowers, "nShowers/I");
-  myTTree->Branch("nShowers", &nShowers, "nShowers/I");
-  myTTree->Branch("largestHits", &largestHits, "largestHits/I");
-  myTTree->Branch("largestDaughters", &largestDaughters, "largestDaughters/I");
+  m_tree->Branch("nEvent",&nEvent,"nEvent/I");
+  m_tree->Branch("nPFParticles",&nPFParticles,"nPFParticles/I");
+  m_tree->Branch("nTracks", &nTracks, "nTracks/I");
+  m_tree->Branch("nShowers", &nShowers, "nShowers/I");
+  m_tree->Branch("nShowers", &nShowers, "nShowers/I");
+  m_tree->Branch("largestHits", &largestHits, "largestHits/I");
+  m_tree->Branch("largestDaughters", &largestDaughters, "largestDaughters/I");
 
   this->reconfigure(p);
 
@@ -101,9 +101,9 @@ test::MyTestAnalyzer::MyTestAnalyzer(fhicl::ParameterSet const & p) :
 test::MyTestAnalyzer::~MyTestAnalyzer()
 {                                                                                                              
   //store output tree                                                                                          
-  myTFile->cd();                                                                                                
-  myTTree->Write("tree");                                                                                       
-  myTFile->Close();                                                                                             
+  m_file->cd();                                                                                                
+  m_tree->Write("tree");                                                                                       
+  m_file->Close();                                                                                             
   std::cout << "End!" << std::endl;                                                                            
 }
 
@@ -147,7 +147,7 @@ void test::MyTestAnalyzer::analyze(art::Event const & e)
   ClustersToHits clustersToHits; 
   for (unsigned int i = 0; i < hitListHandle->size(); i++)
   {
-    if (theHitAssns.at(i).size()!=0)
+    if (!theHitAssns.at(i).empty())
       {
 	const art::Ptr<recob::Cluster> cluster(theHitAssns.at(i)[0]);
 	const art::Ptr<recob::Hit> hit(hitListHandle,i);
@@ -181,7 +181,7 @@ void test::MyTestAnalyzer::analyze(art::Event const & e)
   }
 
   //fill the tree
-  myTTree->Fill();  
+  m_tree->Fill();  
 
 }
 
