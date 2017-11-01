@@ -27,6 +27,11 @@
 #include "lardataobj/RecoBase/Hit.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
+//add the simple track ana alg!
+#include "SimpleTrackAna.h"
+#include "canvas/Persistency/Common/FindMany.h"
+#include "canvas/Persistency/Common/FindOne.h"
+
 namespace test {
   class MyTestAnalyzer;
 }
@@ -70,6 +75,11 @@ private:
   std::string     m_particleLabel; 
   std::string     m_hitfinderLabel;
 
+  //adding the stuff for the simple track ana!!
+  ana::SimpleTrackAna fAnaAlg; //the alg
+  art::InputTag fTrackInputTag;
+
+  
 };
 
 
@@ -95,6 +105,9 @@ test::MyTestAnalyzer::MyTestAnalyzer(fhicl::ParameterSet const & p) :
   m_tree->Branch("largestDaughters", &largestDaughters, "largestDaughters/I");
 
   this->reconfigure(p);
+
+  //make a new/different tree for the trackanaalg too
+  fAnaAlg.SetOutputTree(tfs->make<TTree>("trkanatree","MyTrackAnaTree"));
 
 }
 
@@ -183,6 +196,28 @@ void test::MyTestAnalyzer::analyze(art::Event const & e)
   //fill the tree
   m_tree->Fill();  
 
+
+  //ok, and at the end here now, let's add in what we did in the
+  //demo_SimpleTrackAna code. Annoying changes of "ev"-->"e" and the like
+  
+  //let's get a valid handle, and a vector of objects from it
+  auto const& track_handle = e.getValidHandle<std::vector<recob::Track>>(fTrackInputTag);
+  auto const& track_vec(*track_handle);
+  
+  //note, we need to get the hit associations before running the alg.
+  
+  //prepare the container
+  std::vector< std::vector<recob::Hit const*> > hits_vecs(track_vec.size());
+  
+  //run the FindMany stuff
+  art::FindMany<recob::Hit> hits_per_track(track_handle,e,fTrackInputTag);
+  for (size_t i_f = 0, size_track = track_vec.size(); i_f != size_track; ++i_f)
+    hits_per_track.get(i_f,hits_vecs[i_f]);
+  
+  //fill our trees in our ana alg!
+  fAnaAlg.ProcessTracks(track_vec,hits_vecs);    
+  
+  
 }
 
 void test::MyTestAnalyzer::reconfigure(fhicl::ParameterSet const & p)
@@ -191,6 +226,8 @@ void test::MyTestAnalyzer::reconfigure(fhicl::ParameterSet const & p)
   //here you add an external fcl file to change configuration
   m_particleLabel  = p.get<std::string>("PFParticleModule","pandoraNu");
   m_hitfinderLabel = p.get<std::string>("HitFinderModule","linecluster");
+
+  fTrackInputTag = p.get<art::InputTag>("TrackModule","pandoraNu");
 }
 
 DEFINE_ART_MODULE(test::MyTestAnalyzer)

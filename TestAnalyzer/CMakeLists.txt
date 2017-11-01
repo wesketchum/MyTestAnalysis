@@ -1,5 +1,19 @@
 art_make(
-	  MODULE_LIBRARIES
+	LIBRARY_NAME TestAnalyzer
+	LIB_LIBRARIES
+		canvas
+		cetlib
+		cetlib_except
+		nusimdata_SimulationBase
+		larcoreobj_SummaryData
+		lardataobj_RecoBase
+		lardataobj_MCBase
+		lardataobj_RawData
+		lardataobj_OpticalDetectorData
+		lardataobj_AnalysisBase
+		${ROOT_BASIC_LIB_LIST}
+	MODULE_LIBRARIES
+			TestAnalyzer
                         ${ART_FRAMEWORK_CORE}
 			${ART_FRAMEWORK_IO_SOURCES}
                         ${ART_FRAMEWORK_PRINCIPAL}
